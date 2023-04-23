@@ -50,14 +50,16 @@ jobs:
           mvn javadoc:jar
       - name: Run tests
         run: |
-          TEST="" make test
+          TEST="" make test-gzoltar
         env:
           JVM_OPTS: -Xmx3200m
           TERM: dumb
       - name: redismod docker
         run: docker run -p 52567:6379 -d redislabs/redismod:edge
       - name: Run tests
-        run: mvn -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" test
+        run: mvn -P sufire -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" gzoltar:prepare-agent test
+      - name: Generate GZoltar report
+        run: mvn gzoltar:fl-report
       - name: Codecov
         run: |
           bash <(curl -s https://codecov.io/bash)
