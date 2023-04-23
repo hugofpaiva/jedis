@@ -23,6 +23,9 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v2
       - name: Set up publishing to maven central
@@ -60,6 +63,14 @@ jobs:
         run: mvn -P sufire -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" gzoltar:prepare-agent test
       - name: Generate GZoltar report
         run: mvn gzoltar:fl-report
+      - name: Enhance GZoltar results
+        uses: hugofpaiva/gzoltar-feedback-action@main
+        with:
+            build-path: "/target/site/gzoltar"
+            sfl-ranking: "[ochiai, tarantula]"
+            sfl-threshold: "[0.5, 0.85]"
+            sfl-ranking-order: "ochiai"
+            upload-artifacts: true
       - name: Codecov
         run: |
           bash <(curl -s https://codecov.io/bash)
