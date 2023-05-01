@@ -53,6 +53,7 @@
 		<junit.version>4.13.2</junit.version>
 		<gzoltar.version>1.7.3</gzoltar.version>
 		<surefire.version>3.0.0</surefire.version>
+		<jacoco.version>0.8.5</jacoco.version>
 	</properties>
 
 	<dependencies>
@@ -148,6 +149,25 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.11.0</version>
@@ -337,6 +357,23 @@
 			</activation>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>report</id>
+								<phase>none</phase> <!-- Disabling plugin when using this profile -->
+							</execution>
+						</executions>
+					</plugin>
+
 					<plugin>
 						<groupId>com.gzoltar</groupId>
 						<artifactId>com.gzoltar.maven</artifactId>

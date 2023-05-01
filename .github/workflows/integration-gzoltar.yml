@@ -1,33 +1,38 @@
 ---
-name: Integration
+
+name: Integration with GZoltar Fault Localization
 
 on:
   push:
     paths-ignore:
-      - "docs/**"
-      - "**/*.md"
-      - "**/*.rst"
+      - 'docs/**'
+      - '**/*.md'
+      - '**/*.rst'
     branches:
       - master
-      - "[0-9].[0-9]"
+      - '[0-9].[0-9]'
   pull_request:
     branches:
       - master
-      - "[0-9].[0-9]"
+      - '[0-9].[0-9]'
   schedule:
-    - cron: "0 1 * * *" # nightly build
+    - cron: '0 1 * * *' # nightly build
 
 jobs:
+
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v2
       - name: Set up publishing to maven central
         uses: actions/setup-java@v2
         with:
-          java-version: "8"
-          distribution: "temurin"
+          java-version: '8'
+          distribution: 'temurin'
       - name: System setup
         run: |
           sudo apt update
@@ -48,14 +53,21 @@ jobs:
           mvn javadoc:jar
       - name: Run tests
         run: |
-          TEST="" make test
+          TEST="" make test-gzoltar
         env:
           JVM_OPTS: -Xmx3200m
           TERM: dumb
       - name: redismod docker
         run: docker run -p 52567:6379 -d redislabs/redismod:edge
       - name: Run tests
-        run: mvn -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" test
-      - name: Codecov
-        run: |
-          bash <(curl -s https://codecov.io/bash)
+        run: mvn -P sufire -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" gzoltar:prepare-agent test
+      - name: Generate GZoltar report
+        run: mvn gzoltar:fl-report
+      - name: Enhance GZoltar results
+        uses: hugofpaiva/gzoltar-feedback-action@main
+        with:
+            build-path: "/target/site/gzoltar"
+            sfl-ranking: "[ochiai, tarantula]"
+            sfl-threshold: "[0.5, 0.85]"
+            sfl-ranking-order: "ochiai"
+            upload-artifacts: true
