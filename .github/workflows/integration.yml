@@ -1,23 +1,25 @@
 ---
+
 name: Integration
 
 on:
   push:
     paths-ignore:
-      - "docs/**"
-      - "**/*.md"
-      - "**/*.rst"
+      - 'docs/**'
+      - '**/*.md'
+      - '**/*.rst'
     branches:
       - master
-      - "[0-9].[0-9]"
+      - '[0-9].[0-9]'
   pull_request:
     branches:
       - master
-      - "[0-9].[0-9]"
+      - '[0-9].[0-9]'
   schedule:
-    - cron: "0 1 * * *" # nightly build
+    - cron: '0 1 * * *' # nightly build
 
 jobs:
+
   build:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -26,8 +28,8 @@ jobs:
       - name: Set up publishing to maven central
         uses: actions/setup-java@v2
         with:
-          java-version: "8"
-          distribution: "temurin"
+          java-version: '8'
+          distribution: 'temurin'
       - name: System setup
         run: |
           sudo apt update

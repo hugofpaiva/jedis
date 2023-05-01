@@ -60,14 +60,14 @@ jobs:
       - name: redismod docker
         run: docker run -p 52567:6379 -d redislabs/redismod:edge
       - name: Run tests
-        run: mvn -P sufire -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" gzoltar:prepare-agent test
+        run: mvn -P gzoltar-sufire -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" gzoltar:prepare-agent test
       - name: Generate GZoltar report
         run: mvn gzoltar:fl-report
       - name: Enhance GZoltar results
         uses: hugofpaiva/gzoltar-feedback-action@main
         with:
-            build-path: "/target/site/gzoltar"
-            sfl-ranking: "[ochiai, tarantula]"
-            sfl-threshold: "[0.5, 0.85]"
-            sfl-ranking-order: "ochiai"
+            build-path: '/target/site/gzoltar'
+            sfl-ranking: '[ochiai, tarantula]'
+            sfl-threshold: '[0.5, 0.85]'
+            sfl-ranking-order: 'ochiai'
             upload-artifacts: true

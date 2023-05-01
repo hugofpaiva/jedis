@@ -349,10 +349,10 @@
 			</build>
 		</profile>
 		<profile>
-			<id>sufire</id>
+			<id>gzoltar-sufire</id>
 			<activation>
 				<property>
-					<name>sufire</name>
+					<name>gzoltar-sufire</name>
 				</property>
 			</activation>
 			<build>
@@ -361,17 +361,9 @@
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
 						<version>${jacoco.version}</version>
-						<executions>
-							<execution>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>report</id>
-								<phase>none</phase> <!-- Disabling plugin when using this profile -->
-							</execution>
-						</executions>
+						<configuration>
+							<skip>true</skip> <!-- Disabling plugin when using this profile -->
+						</configuration>
 					</plugin>
 
 					<plugin>

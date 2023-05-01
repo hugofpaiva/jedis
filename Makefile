@@ -447,7 +447,7 @@ test: compile-module start
 
 test-gzoltar: compile-module start
 	sleep 2
-	mvn -P sufire -Dtest=${SKIP_SSL}${TEST} clean compile gzoltar:prepare-agent test
+	mvn -P gzoltar-sufire -Dtest=${SKIP_SSL}${TEST} clean compile gzoltar:prepare-agent test
 	make stop
 
 package: start
