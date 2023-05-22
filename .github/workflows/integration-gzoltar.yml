@@ -1,25 +1,23 @@
 ---
-
 name: Integration with GZoltar Fault Localization
 
 on:
   push:
     paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
-      - '**/*.rst'
+      - "docs/**"
+      - "**/*.md"
+      - "**/*.rst"
     branches:
       - master
-      - '[0-9].[0-9]'
+      - "[0-9].[0-9]"
   pull_request:
     branches:
       - master
-      - '[0-9].[0-9]'
+      - "[0-9].[0-9]"
   schedule:
-    - cron: '0 1 * * *' # nightly build
+    - cron: "0 1 * * *" # nightly build
 
 jobs:
-
   build:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -31,8 +29,8 @@ jobs:
       - name: Set up publishing to maven central
         uses: actions/setup-java@v2
         with:
-          java-version: '8'
-          distribution: 'temurin'
+          java-version: "8"
+          distribution: "temurin"
       - name: System setup
         run: |
           sudo apt update
@@ -57,17 +55,27 @@ jobs:
         env:
           JVM_OPTS: -Xmx3200m
           TERM: dumb
-      - name: redismod docker
-        run: docker run -p 52567:6379 -d redislabs/redismod:edge
-      - name: Run tests
+      - name: Make - start
+        run: make start
+      - name: Docker - mod or stack
+        run: docker run -p 52567:6379 -d redis/redis-stack-server:edge
+      - name: Test commands - default protocol
+        run: mvn -P gzoltar-sufire -Dtest="redis.clients.jedis.commands.**" gzoltar:prepare-agent test
+      - name: Test commands - RESP3 protocol
+        run: mvn -P gzoltar-sufire -DjedisProtocol=3 -Dtest="redis.clients.jedis.commands.**" gzoltar:prepare-agent test
+      - name: Test module commands - default protocol
         run: mvn -P gzoltar-sufire -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" gzoltar:prepare-agent test
+      - name: Test module commands - RESP3 protocol
+        run: mvn -P gzoltar-sufire -DjedisProtocol=3 -DmodulesDocker="localhost:52567" -Dtest="redis.clients.jedis.modules.**" gzoltar:prepare-agent test
+      - name: Make - stop
+        run: make stop
       - name: Generate GZoltar report
         run: mvn gzoltar:fl-report
       - name: Enhance GZoltar results
         uses: hugofpaiva/gzoltar-feedback-action@main
         with:
-            build-path: '/target/site/gzoltar'
-            sfl-ranking: '[ochiai, tarantula]'
-            sfl-threshold: '[0.5, 0.85]'
-            sfl-ranking-order: 'ochiai'
-            upload-artifacts: true
+          build-path: "/target/site/gzoltar"
+          sfl-ranking: "[ochiai]"
+          sfl-threshold: "[0.5]"
+          sfl-ranking-order: "ochiai"
+          upload-artifacts: true

@@ -31,6 +31,7 @@ import redis.clients.jedis.args.ClientPauseMode;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.HostAndPorts;
 import redis.clients.jedis.util.AssertUtil;
+import redis.clients.jedis.util.KeyValue;
 import redis.clients.jedis.util.SafeEncoder;
 
 public class ControlCommandsTest extends JedisCommandsTestBase {
@@ -154,13 +155,13 @@ public class ControlCommandsTest extends JedisCommandsTestBase {
       List<Object> role = sentinel.role();
       assertEquals("sentinel", role.get(0));
       assertTrue(role.get(1) instanceof List);
-      assertTrue(((List) role.get(1)).contains("mymaster"));
+      AssertUtil.assertCollectionContains((List) role.get(1), "mymaster");
 
       // binary
       List<Object> brole = sentinel.roleBinary();
       assertArrayEquals("sentinel".getBytes(), (byte[]) brole.get(0));
       assertTrue(brole.get(1) instanceof List);
-      AssertUtil.assertCollectionContains((List) brole.get(1), "mymaster".getBytes());
+      AssertUtil.assertByteArrayCollectionContains((List) brole.get(1), "mymaster".getBytes());
     }
   }
 
@@ -246,6 +247,11 @@ public class ControlCommandsTest extends JedisCommandsTestBase {
   @Test
   public void waitReplicas() {
     assertEquals(1, jedis.waitReplicas(1, 100));
+  }
+
+  @Test
+  public void waitAof() {
+    assertEquals(KeyValue.of(0L, 0L), jedis.waitAOF(0L, 0L, 100L));
   }
 
   @Test
@@ -335,7 +341,7 @@ public class ControlCommandsTest extends JedisCommandsTestBase {
 
       assertThat(latencyRead.get(), Matchers.lessThan(100L));
 
-      assertThat(latencyWrite.get(), greaterThan(100L));
+      assertThat(latencyWrite.get(), Matchers.greaterThan(100L));
 
     } finally {
       executorService.shutdown();
