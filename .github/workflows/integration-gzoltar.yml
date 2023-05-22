@@ -73,6 +73,8 @@ jobs:
         run: mvn gzoltar:fl-report
       - name: Enhance GZoltar results
         uses: hugofpaiva/gzoltar-feedback-action@main
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
         with:
           build-path: "/target/site/gzoltar"
           sfl-ranking: "[ochiai]"
