@@ -164,7 +164,7 @@ public final class Protocol {
         return null;
       // TODO: Blob error '!'
       default:
-        throw new JedisConnectionException("Unknown reply: " + (char) b);
+        throw new JedisConnectionException("Unknown reply: " + (char) b); 
     }
   }
 
